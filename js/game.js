@@ -624,6 +624,21 @@
   });
   function back() { S.play('click'); if (depth > 0) history.back(); else go('title'); }
 
+  // Back to ケロちゃん ランド, the menu at the top of the site. When the game was opened
+  // from it, step back in history (so the phone's back button keeps making sense).
+  function toLand() {
+    S.play('click');
+    var fromLand = false;
+    try {
+      var ref = new URL(document.referrer);
+      fromLand = ref.origin === location.origin && ref.pathname === new URL('../', location.href).pathname;
+    } catch (e) { /* no referrer */ }
+    setTimeout(function () {
+      if (fromLand && depth === 0 && history.length > 1) history.back();
+      else location.href = '../';
+    }, 120);
+  }
+
   var curWorld = 0;
 
   // --- speed (how fast the eggs come down)
@@ -1095,6 +1110,7 @@
     S.set('sfx', save.sfx); S.set('music', save.music);
 
     $('btn-play').addEventListener('click', function () { S.play('click'); forward(function () { go('worlds'); }); });
+    $('btn-land').addEventListener('click', toLand);
     $('btn-endless').addEventListener('click', function () { S.play('click'); forward(startEndless); });
     document.querySelectorAll('.speed-btn').forEach(function (b) {
       b.addEventListener('click', function () { save.speed = b.getAttribute('data-speed'); store(); refreshSpeed(); S.play('click'); });
