@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><title>stages</title>
+<style>
+  body { margin: 0; padding: 10px; background: #fff8e1; font: 13px/1.3 sans-serif; color: #5a3825; }
+  h2 { margin: 12px 0 6px; font-size: 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  figure { margin: 0; background: #fff; border: 2px solid #5a3825; border-radius: 10px; padding: 4px; }
+  figcaption { text-align: center; font-weight: bold; }
+  canvas { display: block; width: 180px; height: 180px; }
+</style></head>
+<body>
+<script src="../js/engine.js"></script><script src="../js/levels.js"></script><script src="../js/draw.js"></script>
+<script>
+// Every stage as a small picture (for checking shapes and colours).
+LEVELS.forEach(function (wd, wi) {
+  var h = document.createElement('h2'); h.textContent = 'ワールド ' + (wi + 1) + '　' + wd.name; document.body.appendChild(h);
+  var row = document.createElement('div'); row.className = 'row'; document.body.appendChild(row);
+  wd.stages.forEach(function (lv, si) {
+    var f = document.createElement('figure'), c = document.createElement('canvas');
+    c.width = c.height = 360;
+    var g = c.getContext('2d'), w = new Engine.World(lv, { seed: 1 });
+    g.fillStyle = Draw.THEMES[wd.theme].sky[1]; g.fillRect(0, 0, 360, 360);
+    g.translate(0, -50);
+    w.g.each(function (r, cc, k) { Draw.egg(g, k, w.cx(r, cc), w.cy(r), Engine.R, 0, 0); });
+    var cap = document.createElement('figcaption');
+    cap.textContent = (wi + 1) + '-' + (si + 1) + '  ' + w.count() + 'こ  ★' + lv.par[0] + '/' + lv.par[1] + (lv.sp ? '  ' + lv.sp : '') + (lv.tip ? '  💬' : '');
+    f.appendChild(c); f.appendChild(cap); row.appendChild(f);
+  });
+});
+</script></body></html>

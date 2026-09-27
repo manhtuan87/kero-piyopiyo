@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><title>icon</title>
+<style>html, body { margin: 0; background: transparent; overflow: hidden; } canvas { display: block; }</style></head>
+<body><canvas id="c"></canvas>
+<script src="../js/engine.js"></script><script src="../js/draw.js"></script>
+<script>
+// The app icon, drawn with the game's own pictures.
+// ?size=512  ?mask=1 (maskable: full square, picture kept inside the safe zone)
+// Saved as PNG with headless Chrome (see tools/make-icons.ps1).
+var q = new URLSearchParams(location.search), size = +q.get('size') || 512, mask = q.get('mask') === '1';
+var c = document.getElementById('c'), g = c.getContext('2d');
+c.width = c.height = size;
+var s = size / 100;
+g.scale(s, s);
+// background
+var bgGrad = g.createLinearGradient(0, 0, 0, 100);
+bgGrad.addColorStop(0, '#ffe38f'); bgGrad.addColorStop(1, '#fff1f7');
+if (mask) { g.fillStyle = bgGrad; g.fillRect(0, 0, 100, 100); }
+else { Draw.roundRect(g, 0, 0, 100, 100, 22); g.fillStyle = bgGrad; g.fill(); }
+g.save();
+if (mask) { g.translate(50, 50); g.scale(0.8, 0.8); g.translate(-50, -50); }
+// soft clouds
+g.fillStyle = 'rgba(255,255,255,.8)';
+Draw.ellipse(g, 78, 22, 12, 5.5); g.fill(); Draw.ellipse(g, 71, 24, 7, 4.5); g.fill(); Draw.ellipse(g, 85, 24, 7, 4); g.fill();
+// ケロちゃん hugging an egg
+g.save(); g.translate(53, 57); g.scale(0.47, 0.47); g.translate(-180, -300);
+Draw.critter(g, { x: 180, y: 300, t: 0, kind: 'frog', look: { x: 130, y: 220 }, open: 0, mode: 'idle',
+  hold: function (h) { Draw.egg(h, 0, 0, 25, 17, 0, 0); } });
+g.restore();
+// a chick flying out, wearing its eggshell
+Draw.chick(g, 24, 31, 0.9, 0, { fly: true, flap: 1.2, shell: 1, happy: true });
+Draw.sparkle(g, 40, 14, 4.5, '#ffffff');
+Draw.sparkle(g, 12, 45, 3.5, '#ffffff');
+Draw.sparkle(g, 88, 44, 3.5, '#fff6a8');
+g.restore();
+document.title = 'ready';
+</script></body></html>
