@@ -4,7 +4,7 @@
    in the background and used from the next launch.
    The site may host other games (ケロちゃん もぐもぐ) that share the cache storage,
    so only caches whose names start with "piyo-" are ever deleted here. */
-var VERSION = 'piyo-v2';
+var VERSION = 'piyo-v3';
 var FONTS = 'piyo-fonts';
 var FILES = [
   './', 'index.html', 'style.css', 'manifest.webmanifest',
