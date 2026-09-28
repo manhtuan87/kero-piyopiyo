@@ -302,7 +302,7 @@
     var total = e.gone.length + e.drop.length;
     for (var i = 0; i < PRAISE.length; i++) {
       if (total >= PRAISE[i][0]) {
-        this.words.push({ text: PRAISE[i][1], color: PRAISE[i][2], x: Math.max(90, Math.min(W - 90, e.x)), y: Math.max(150, Math.min(420, e.y + 30)), t: 0 });
+        this.words.push({ text: L(PRAISE[i][1]), color: PRAISE[i][2], x: Math.max(90, Math.min(W - 90, e.x)), y: Math.max(150, Math.min(420, e.y + 30)), t: 0 });
         (function (lvl) { setTimeout(function () { S.play('praise', lvl * 3); }, 250); }(PRAISE.length - i));
         this.crit.mode = 'happy'; this.crit.mt = 0; this.crit.until = 1.1;
         break;
@@ -681,7 +681,8 @@
       else D.chick(g, 32, 46, 0.62, 0, { shell: ks[1] });
       b.appendChild(ic);
       var tx = document.createElement('div'); tx.className = 'card-text';
-      tx.innerHTML = '<div class="card-num">ワールド ' + (wi + 1) + '</div><div class="card-name' + (wd.name.length > 9 ? ' long' : '') + '">' + wd.name + '</div>' +
+      var wname = L(wd.name);
+      tx.innerHTML = '<div class="card-num">' + L('ワールド {n}', { n: wi + 1 }) + '</div><div class="card-name' + (wname.length > (Lang.cur === 'ja' ? 9 : 16) ? ' long' : '') + '">' + wname + '</div>' +
         '<div class="card-stars">' + icon('star') + ' ' + worldStars(wi) + ' / ' + wd.stages.length * 3 + '</div>';
       b.appendChild(tx);
       if (!open) { var lk = document.createElement('span'); lk.className = 'card-lock'; lk.innerHTML = icon('lock'); b.appendChild(lk); }
@@ -697,8 +698,9 @@
 
   function buildStages() {
     var wd = WORLDS[curWorld], grid = $('stage-grid');
-    $('stages-title').textContent = wd.name;
-    $('stages-title').classList.toggle('long', wd.name.length > 9);
+    var wname = L(wd.name);
+    $('stages-title').textContent = wname;
+    $('stages-title').classList.toggle('long', wname.length > (Lang.cur === 'ja' ? 9 : 16));
     grid.innerHTML = '';
     var nextSet = false;
     wd.stages.forEach(function (lv, si) {
@@ -722,7 +724,7 @@
 
   // --- shop: buy friends with ★ and choose who plays
 
-  var SHOP_NOTE = '★を つかって おともだちを ふやそう！';
+  var SHOP_NOTE = L('★を つかって おともだちを ふやそう！');
   var shop = { t: 0, cards: [], fx: [] };
 
   function drawPreview(cv, kind, t, extra) {
@@ -747,15 +749,15 @@
       cv.width = 240; cv.height = 240; cv.className = 'chara-canvas';
       card.appendChild(cv);
       var nm = document.createElement('div');
-      nm.className = 'chara-name'; nm.textContent = ch.name;
+      nm.className = 'chara-name'; nm.textContent = L(ch.name);
       card.appendChild(nm);
       var b = document.createElement('button');
-      if (using) { b.className = 'btn chara-btn using'; b.textContent = 'つかってる'; }
-      else if (mine) { b.className = 'btn chara-btn'; b.textContent = 'えらぶ'; }
+      if (using) { b.className = 'btn chara-btn using'; b.textContent = L('つかってる'); }
+      else if (mine) { b.className = 'btn chara-btn'; b.textContent = L('えらぶ'); }
       else {
         var can = wallet() >= ch.price;
         b.className = 'btn chara-btn buy' + (can ? '' : ' short');
-        b.innerHTML = icon('star') + ch.price + (can ? ' で かう' : '');
+        b.innerHTML = can ? L('{star}{price} で かう', { star: icon('star'), price: ch.price }) : icon('star') + ch.price;
       }
       b.addEventListener('click', function () { choose(ch, card); });
       card.appendChild(b);
@@ -769,12 +771,12 @@
     if (owns(ch.id)) { S.play('click'); save.chara = ch.id; store(); buildShop(); cheer(ch.id); return; }
     if (wallet() < ch.price) {
       S.play('lose'); shake(card);
-      showShopNote('あと ★' + (ch.price - wallet()) + ' で かえるよ');
+      showShopNote(L('あと ★{n} で かえるよ', { n: ch.price - wallet() }));
       return;
     }
     S.play('click');
     buying = ch;
-    $('buy-text').innerHTML = ch.name + 'を<br>' + icon('star') + ch.price + ' で かう？';
+    $('buy-text').innerHTML = L('{name}を<br>{star}{price} で かう？', { name: L(ch.name), star: icon('star'), price: ch.price });
     showPanel('buy');
   }
 
@@ -790,7 +792,7 @@
     S.play('fanfare'); vibrate(40);
     buildShop(); cheer(ch.id);
     confetti(shop.fx, 60);
-    showShopNote(ch.name + 'が なかまに なったよ！');
+    showShopNote(L('{name}が なかまに なったよ！', { name: L(ch.name) }));
   }
 
   function cheer(id) { shop.cards.forEach(function (c) { if (c.id === id) c.happyT = shop.t; }); }
@@ -832,10 +834,10 @@
     drawDots();
   }
   function openAdmin() {
-    $('p-all').textContent = save.all ? '全ステージ解放：オン' : '全ステージ解放：オフ';
+    $('p-all').textContent = L(save.all ? '全ステージ解放：オン' : '全ステージ解放：オフ');
     $('p-all').classList.toggle('active', !!save.all);
-    $('p-reset').textContent = '記録をリセット';
-    $('p-info').textContent = 'あつめた★ ' + totalStars() + '　つかった★ ' + save.spent;
+    $('p-reset').textContent = L('記録をリセット');
+    $('p-info').textContent = L('あつめた★ {got}　つかった★ {spent}', { got: totalStars(), spent: save.spent });
     showPanel('parent');
   }
 
@@ -864,7 +866,7 @@
     S.setKey(WORLDS[wi].key || 0);
     show('play');
     if (!same || opts.showTip) hideTip();
-    if (lv.tip && (!same || opts.showTip)) showTip(TIPS[lv.tip] || lv.tip);
+    if (lv.tip && (!same || opts.showTip)) showTip(L(TIPS[lv.tip] || lv.tip));
     if (firstTime) { save.seen[skey(wi, si)] = 1; store(); }
     requestWake();
   }
@@ -874,8 +876,8 @@
     game = { endless: true, fails: 0, hintOn: same && game.hintOn, shownEnd: false, chicks: 0 };
     game.scene = new Scene(ENDLESS[save.speed], { speed: save.speed, onEvent: onPlayEvent });
     $('hud').classList.add('endless');
-    $('h-label').textContent = SPEED_NAMES[save.speed];
-    $('h-best').textContent = 'さいこう ' + (save.best[save.speed] || 0);
+    $('h-label').textContent = L(SPEED_NAMES[save.speed]);
+    $('h-best').textContent = L('さいこう {n}', { n: save.best[save.speed] || 0 });
     $('h-num').textContent = '0';
     $('h-hint').classList.remove('glow');
     $('h-hint').classList.toggle('active', !!game.hintOn);
@@ -946,9 +948,10 @@
     var allDone = WORLDS.every(function (wd, i) { return cleared(i, wd.stages.length - 1); });
     var title = got === 3 ? 'かんぺき！' : got === 2 ? 'すごい！' : 'やったね！';
     if (lastStage && first) title = wi === WORLDS.length - 1 && allDone ? 'ぜんぶ クリア！' : 'ワールド クリア！';
+    title = L(title);
     $('clear-title').textContent = title;
     $('clear-title').classList.toggle('long', title.length > 6);
-    $('clear-note').innerHTML = 'ひよこが <b>' + game.scene.world.hatched + '</b>わ うまれたよ！';
+    $('clear-note').innerHTML = L('ひよこが <b>{n}</b>わ うまれたよ！', { n: game.scene.world.hatched });
     var slots = $('clear-stars').children;
     for (var i = 0; i < 3; i++) slots[i].className = '';
     for (var k = 0; k < got; k++) {
@@ -969,18 +972,18 @@
   }
 
   function showFail() {
-    $('fail-title').textContent = 'ざんねん…';
+    $('fail-title').textContent = L('ざんねん…');
     $('fail-title').classList.add('fail-title');
-    $('fail-note').textContent = 'たまごが せんまで きちゃった';
+    $('fail-note').textContent = L('たまごが せんまで きちゃった');
     showPanel('fail');
   }
 
   function showEndlessEnd() {
     var n = game.scene.world.hatched, best = save.best[save.speed] || 0, record = n > best;
     if (record) { save.best[save.speed] = n; store(); }
-    $('fail-title').textContent = record ? 'しんきろく！' : 'おしまい！';
+    $('fail-title').textContent = L(record ? 'しんきろく！' : 'おしまい！');
     $('fail-title').classList.toggle('fail-title', !record);
-    $('fail-note').innerHTML = 'ひよこが <b>' + n + '</b>わ うまれたよ！<br>さいこう ' + Math.max(n, best) + 'わ';
+    $('fail-note').innerHTML = L('ひよこが <b>{n}</b>わ うまれたよ！<br>さいこう {best}わ', { n: n, best: Math.max(n, best) });
     if (record) { setTimeout(function () { S.play('fanfare'); }, 300); confetti(game.scene.fx, 60); }
     showPanel('fail');
   }
@@ -1162,7 +1165,7 @@
     $('p-all').addEventListener('click', function () { save.all = !save.all; store(); openAdmin(); });
     var resetArmed = false;
     $('p-reset').addEventListener('click', function () {
-      if (!resetArmed) { resetArmed = true; $('p-reset').textContent = 'もう一度押すと消えます'; return; }
+      if (!resetArmed) { resetArmed = true; $('p-reset').textContent = L('もう一度押すと消えます'); return; }
       save.stars = {}; save.seen = {}; save.all = false; save.best = {};
       save.spent = 0; save.owned = ['frog']; save.chara = 'frog';
       store(); resetArmed = false; openAdmin(); refreshShopBadge();
@@ -1207,6 +1210,9 @@
 
   window.addEventListener('resize', resize);
   resize();
+  // the chosen language (js/lang.js): the title logo and the fixed text of the page
+  Lang.logo($('logo'), Lang.pick(GAME_LOGO), ['#86d65c', '#ff8fc0', '#ffb347', '#6cc6ff', '#b58cff', '#ffd23d', '#ff8fc0', '#ffd23d', '#6cc6ff', '#86d65c', '#ffa552']);
+  Lang.apply();
   wire();
   history.replaceState({ d: 0 }, '');
   go('title');

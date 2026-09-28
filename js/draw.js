@@ -710,7 +710,7 @@ var Draw = (function () {
     var s = k < 0.2 ? 0.5 + k / 0.2 * 0.7 : k < 0.3 ? 1.2 - (k - 0.2) / 0.1 * 0.2 : 1;
     ctx.scale(s, s);
     ctx.globalAlpha = k > 0.75 ? Math.max(0, (1 - k) / 0.25) : 1;
-    ctx.font = '800 ' + size + 'px "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", sans-serif';
+    ctx.font = '800 ' + size + 'px "M PLUS Rounded 1c", "Jua", "Hiragino Maru Gothic ProN", sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.lineJoin = 'round';
     ctx.lineWidth = size * 0.22; ctx.strokeStyle = INK; ctx.strokeText(text, 0, 0);
