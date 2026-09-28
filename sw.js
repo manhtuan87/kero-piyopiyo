@@ -6,7 +6,7 @@
    over at once, and the page reloads itself on the title screen.
    The site may host other games (ケロちゃん もぐもぐ) that share the cache storage,
    so only caches whose names start with "piyo-" are ever deleted here. */
-var VERSION = 'piyo-v5';
+var VERSION = 'piyo-v6';
 var FONTS = 'piyo-fonts';
 var FILES = [
   './', 'index.html', 'style.css', 'manifest.webmanifest',
