@@ -6,11 +6,11 @@
    over at once, and the page reloads itself on the title screen.
    The site may host other games (ケロちゃん もぐもぐ) that share the cache storage,
    so only caches whose names start with "piyo-" are ever deleted here. */
-var VERSION = 'piyo-v6';
+var VERSION = 'piyo-v7';
 var FONTS = 'piyo-fonts';
 var FILES = [
   './', 'index.html', 'style.css', 'manifest.webmanifest',
-  'js/lang.js', 'js/lang-text.js', 'js/engine.js', 'js/levels.js', 'js/draw.js', 'js/sound.js', 'js/game.js',
+  'js/lang.js', 'js/lang-text.js', 'js/accounts.js', 'js/engine.js', 'js/levels.js', 'js/draw.js', 'js/sound.js', 'js/game.js',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'
 ];
 
@@ -29,6 +29,11 @@ self.addEventListener('activate', function (e) {
     return Promise.all(keys.filter(function (k) { return k.indexOf('piyo-') === 0 && k !== VERSION && k !== FONTS; })
       .map(function (k) { return caches.delete(k); }));
   }).then(function () { return self.clients.claim(); }));
+});
+
+// ケロちゃん ランド (the menu) asks which version is on the phone, and shows it.
+self.addEventListener('message', function (e) {
+  if (e.data === 'version' && e.ports && e.ports[0]) e.ports[0].postMessage(VERSION);
 });
 
 self.addEventListener('fetch', function (e) {

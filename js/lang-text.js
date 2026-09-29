@@ -1,5 +1,8 @@
 /* ケロちゃん ぴよぴよポン in every language: [Tiếng Việt, English, 한국어] (see js/lang.js). */
 Lang.add({
+  'だれが あそぶ？': ['Ai chơi nào?', 'Who is playing?', '누가 할래?'],
+  'なまえなし': ['Chưa có tên', 'No name', '이름 없음'],
+  'とじる': ['Đóng', 'Close', '닫기'],
   // title
   'ケロちゃん ぴよぴよポン': ['Kero Chíp Chíp Bùm', 'Kero Chick Pop', '케로 삐약삐약 퐁'],
   'おなじ いろを 3つ くっつけよう！': ['Ghép 3 quả trứng cùng màu nhé!', 'Match 3 of the same colour!', '같은 색 3개를 붙여 봐!'],
