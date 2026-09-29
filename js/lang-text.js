@@ -10,6 +10,7 @@ Lang.add({
   'ホームに ついか': ['Thêm vào màn hình', 'Add to Home', '홈 화면에 추가'],
   'こうかおん': ['Âm thanh', 'Sound effects', '효과음'],
   'おんがく': ['Nhạc', 'Music', '음악'],
+  'おと': ['Âm thanh', 'Sound', '소리'],
   'はやさ': ['Tốc độ', 'Speed', '속도'],
   'ゆっくり': ['Chậm', 'Slow', '느리게'],
   'ふつう': ['Vừa', 'Normal', '보통'],
