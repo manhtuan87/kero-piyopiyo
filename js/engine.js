@@ -33,7 +33,8 @@
   var SPEEDS = {
     slow: { stage: 30, endless: 20 },
     normal: { stage: 16, endless: 12 },
-    fast: { stage: 9, endless: 7 }
+    fast: { stage: 9, endless: 7 },
+    oni: { stage: 6, endless: 5 }   // (おに, 2026-09-30)
   };
   var ENDLESS_MIN = 3, ENDLESS_ACCEL = 0.96;
 

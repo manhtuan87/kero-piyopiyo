@@ -22,12 +22,15 @@
   };
 
   // Endless mode: new rows keep coming; more colours when it is faster.
+  // おに (2026-09-30): faster than はやい, six colours in endless, no 💡 (the stages keep their own colours).
   var ENDLESS = {
     slow: { endless: true, palette: [0, 1, 2, 3], sp: 'brl', every: 9, start: 6 },
     normal: { endless: true, palette: [0, 1, 2, 3, 4], sp: 'brl', every: 9, start: 6 },
-    fast: { endless: true, palette: [0, 1, 2, 3, 4], sp: 'brl', every: 10, start: 7 }
+    fast: { endless: true, palette: [0, 1, 2, 3, 4], sp: 'brl', every: 10, start: 7 },
+    oni: { endless: true, palette: [0, 1, 2, 3, 4, 5], sp: 'brl', every: 11, start: 7 }
   };
-  var SPEED_NAMES = { slow: 'ゆっくり', normal: 'ふつう', fast: 'はやい' };
+  var SPEED_NAMES = { slow: 'ゆっくり', normal: 'ふつう', fast: 'はやい', oni: 'おに' };
+  function isOni() { return save.speed === 'oni'; }
 
   // ---------------------------------------------------------------- save data
 
@@ -65,6 +68,7 @@
     s.chara = s.chara || 'frog';       // character in use
     s.speed = E.SPEEDS[s.speed] ? s.speed : 'slow';
     s.best = s.best || {};             // endless: most chicks, per speed
+    s.oni = s.oni || {};               // the stages cleared at おに
     return s;
   }());
   function store() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(root)); } catch (e) { /* ignore */ } }
@@ -108,21 +112,35 @@
     bg.canvas = null;
   }
 
+  // おに: the whole background turns reddish and darker at the edges.
+  function oniTint(b, v) {
+    b.save();
+    b.fillStyle = 'rgba(214,40,57,.2)';
+    b.fillRect(v.x0, v.y0, v.x1 - v.x0, v.y1 - v.y0);
+    var cx = (v.x0 + v.x1) / 2, cy = (v.y0 + v.y1) / 2, rr = Math.hypot(v.x1 - v.x0, v.y1 - v.y0) / 2;
+    var g = b.createRadialGradient(cx, cy, rr * 0.45, cx, cy, rr);
+    g.addColorStop(0, 'rgba(90,10,20,0)'); g.addColorStop(1, 'rgba(90,10,20,.32)');
+    b.fillStyle = g;
+    b.fillRect(v.x0, v.y0, v.x1 - v.x0, v.y1 - v.y0);
+    b.restore();
+  }
   function worldTransform(c) { c.setTransform(view.dpr * view.s, 0, 0, view.dpr * view.s, view.dpr * view.ox, view.dpr * view.oy); }
   function visible() {
     var x0 = -view.ox / view.s, y0 = -view.oy / view.s;
     return { x0: x0, y0: y0, x1: x0 + view.cw / view.s, y1: y0 + view.ch / view.s };
   }
 
-  function drawBackground(theme) {
+  function drawBackground(theme, oni) {
     if (!(view.s > 0)) return;   // (a window with no size yet)
-    if (!bg.canvas || bg.theme !== theme) {
+    var key = theme + (oni ? '/oni' : '');
+    if (!bg.canvas || bg.theme !== key) {
       bg.canvas = document.createElement('canvas');
       bg.canvas.width = canvas.width; bg.canvas.height = canvas.height;
       var b = bg.canvas.getContext('2d'), v = visible();
       worldTransform(b);
       D.background(b, theme, v.x0, v.y0, v.x1, v.y1);
-      bg.theme = theme;
+      if (oni) oniTint(b, v);
+      bg.theme = key;
     }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.drawImage(bg.canvas, 0, 0);
@@ -488,7 +506,7 @@
     var holding = this.swapT >= 1 && w.state === 'play';
     c.save(); c.translate(cp.x, cp.y); c.scale(cp.k, cp.k); c.translate(-cp.x, -cp.y);
     D.critter(c, {
-      x: cp.x, y: cp.y, t: t, kind: save.chara, look: look, open: f.open, mode: f.mode, mt: f.mt, blink: f.blink, worry: f.worry,
+      x: cp.x, y: cp.y, t: t, kind: save.chara, look: look, open: f.open, mode: f.mode, mt: f.mt, blink: f.blink, worry: f.worry, horns: isOni(),
       hold: holding ? function (g) { drawEgg(g, w.next, HOLD.x, HOLD.y, 0, HOLD.r / R, t); } : null
     });
     c.restore();
@@ -755,7 +773,8 @@
       if (open) {
         var st = starsOf(curWorld, si), s = '';
         for (var k = 0; k < 3; k++) s += '<i class="' + (k < st ? 'got' : '') + '">' + icon('star') + '</i>';
-        b.innerHTML = '<span class="num">' + (si + 1) + '</span><span class="mini-stars">' + s + '</span>';
+        b.innerHTML = '<span class="num">' + (si + 1) + '</span><span class="mini-stars">' + s + '</span>' +
+          (save.oni[skey(curWorld, si)] ? '<span class="oni-mark">' + icon('horns') + '</span>' : '');   // (cleared at おに)
       } else b.innerHTML = icon('lock');
       b.addEventListener('click', function () {
         if (!stageOpen(curWorld, si)) { S.play('lose'); shake(b); return; }
@@ -896,7 +915,7 @@
     game = {
       wi: wi, si: si, level: lv, endless: false,
       fails: same ? game.fails : 0,
-      hintOn: opts.hint || (same && game.hintOn) || firstTime,
+      hintOn: !isOni() && (opts.hint || (same && game.hintOn) || firstTime),   // (おに: no 💡)
       shownEnd: false, stars: 3, chicks: 0
     };
     game.scene = new Scene(lv, { speed: save.speed, onEvent: onPlayEvent });
@@ -905,7 +924,7 @@
     $('h-label').textContent = (wi + 1) + ' - ' + (si + 1);
     setHudStars(3);
     $('h-num').textContent = '0';
-    $('h-hint').hidden = false;
+    $('h-hint').hidden = isOni();
     $('h-hint').classList.toggle('glow', game.fails >= 3 && !game.hintOn);
     $('h-hint').classList.toggle('active', !!game.hintOn);
     S.setKey(WORLDS[wi].key || 0);
@@ -918,7 +937,7 @@
 
   function startEndless() {
     var same = game && game.endless;
-    game = { endless: true, fails: 0, hintOn: same && game.hintOn, shownEnd: false, chicks: 0 };
+    game = { endless: true, fails: 0, hintOn: !isOni() && same && game.hintOn, shownEnd: false, chicks: 0 };
     game.scene = new Scene(ENDLESS[save.speed], { speed: save.speed, onEvent: onPlayEvent });
     $('hud').classList.add('endless');
     $('h-label').textContent = L(SPEED_NAMES[save.speed]);
@@ -926,6 +945,7 @@
     $('h-num').textContent = '0';
     $('h-hint').classList.remove('glow');
     $('h-hint').classList.toggle('active', !!game.hintOn);
+    $('h-hint').hidden = isOni();
     S.setKey(4);
     show('play');
     hideTip();
@@ -976,6 +996,7 @@
 
   function toggleHint() {
     S.play('click');
+    if (isOni()) return;   // (おに: no 💡)
     game.hintOn = !game.hintOn;
     game.hint = null;
     $('h-hint').classList.toggle('active', !!game.hintOn);
@@ -992,6 +1013,7 @@
     var lastStage = si === WORLDS[wi].stages.length - 1;
     var allDone = WORLDS.every(function (wd, i) { return cleared(i, wd.stages.length - 1); });
     var title = got === 3 ? 'かんぺき！' : got === 2 ? 'すごい！' : 'やったね！';
+    if (isOni()) { title = 'おに クリア！'; save.oni[skey(wi, si)] = 1; store(); }   // (おに: a horn mark on the stage)
     if (lastStage && first) title = wi === WORLDS.length - 1 && allDone ? 'ぜんぶ クリア！' : 'ワールド クリア！';
     title = L(title);
     $('clear-title').textContent = title;
@@ -1131,6 +1153,7 @@
   // ---------------------------------------------------------------- icons
 
   var ICONS = {
+    horns: '<path d="M4.5 20.5c-.4-5.6.6-11 3.4-16.5 1.9 4.3 3.1 9.5 3.3 16.5z" fill="currentColor"/><path d="M19.5 20.5c.4-5.6-.6-11-3.4-16.5-1.9 4.3-3.1 9.5-3.3 16.5z" fill="currentColor"/>',   // (おに)
     home: '<path d="M4 11.5 12 4.5l8 7V20h-5.5v-5.5h-5V20H4z"/>',
     retry: '<path d="M19 12.5a7 7 0 1 1-2.3-5.2"/><path d="M17.5 3v4.8h-4.8"/>',
     hint: '<path d="M9.2 17.5h5.6M10 20.5h4M12 3.5a5.8 5.8 0 0 0-3.6 10.3c.7.6.8 1.6.8 2.2h5.6c0-.6.1-1.6.8-2.2A5.8 5.8 0 0 0 12 3.5z"/>',
@@ -1244,7 +1267,7 @@
     lastT = now; clock += dt;
     if (screen === 'play' && game) {
       if (!SP.isOpen()) updatePlay(dt);   // (the game waits while the sound window is open)
-      drawBackground(game.endless ? 4 : WORLDS[game.wi].theme);
+      drawBackground(game.endless ? 4 : WORLDS[game.wi].theme, isOni());
       if (game) game.scene.draw(ctx, game.hintOn ? game.hint : null);
     } else if (screen === 'title') {
       updateTitle(dt);

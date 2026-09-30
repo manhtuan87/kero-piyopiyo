@@ -15,6 +15,7 @@ Lang.add({
   'ゆっくり': ['Chậm', 'Slow', '느리게'],
   'ふつう': ['Vừa', 'Normal', '보통'],
   'はやい': ['Nhanh', 'Fast', '빠르게'],
+  'おに': ['Siêu khó', 'Super hard'],   // (おに, 2026-09-30; no Korean from here on)
   'あそぶ': ['Chơi', 'Play', '놀자'],
   'エンドレス': ['Chơi mãi', 'Endless', '끝없이'],
   'おみせ': ['Cửa hàng', 'Shop', '가게'],
@@ -48,6 +49,7 @@ Lang.add({
   'いいね！': ['Tốt lắm!', 'Nice!', '좋아!'],
   'さいこう {n}': ['Kỷ lục {n}', 'Best {n}', '최고 {n}'],
   'かんぺき！': ['Hoàn hảo!', 'Perfect!', '완벽해!'],
+  'おに クリア！': ['Qua mức Siêu khó!', 'Super hard clear!'],
   'やったね！': ['Làm được rồi!', 'You did it!', '해냈다!'],
   'ぜんぶ クリア！': ['Qua hết rồi!', 'All clear!', '모두 클리어!'],
   'ワールド クリア！': ['Xong thế giới!', 'World clear!', '월드 클리어!'],

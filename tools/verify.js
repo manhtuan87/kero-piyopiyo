@@ -42,10 +42,12 @@ WORLDS.forEach((wd, wi) => {
     total++;
     const errs = structure(lv);
     const little = rate(lv, 'little', 'slow'), kid = rate(lv, 'kid', 'normal'), kidFast = rate(lv, 'kid', 'fast');
+    const expertOni = rate(lv, 'expert', 'oni');   // (おに: a player who aims well and thinks 1 s must clear it)
     const eggs = new E.World(lv, { seed: 1 }).count();
     if (little.p < 0.8) errs.push('little player clears slow only ' + Math.round(little.p * 100) + '%');
+    if (expertOni.p < 0.5) errs.push('a good player clears おに only ' + Math.round(expertOni.p * 100) + '%');
     if (errs.length) bad++;
-    console.log(`${id.padEnd(5)} eggs ${String(eggs).padStart(2)}  slow(little) ${(little.p * 100).toFixed(0).padStart(3)}% med ${String(little.med).padStart(2)}  normal(kid) ${(kid.p * 100).toFixed(0).padStart(3)}% med ${String(kid.med).padStart(2)}  fast(kid) ${(kidFast.p * 100).toFixed(0).padStart(3)}%  par ${lv.par[0]}/${lv.par[1]}${errs.length ? '  !! ' + errs.join('; ') : ''}`);
+    console.log(`${id.padEnd(5)} eggs ${String(eggs).padStart(2)}  slow(little) ${(little.p * 100).toFixed(0).padStart(3)}% med ${String(little.med).padStart(2)}  normal(kid) ${(kid.p * 100).toFixed(0).padStart(3)}% med ${String(kid.med).padStart(2)}  fast(kid) ${(kidFast.p * 100).toFixed(0).padStart(3)}%  oni(expert) ${(expertOni.p * 100).toFixed(0).padStart(3)}%  par ${lv.par[0]}/${lv.par[1]}${errs.length ? '  !! ' + errs.join('; ') : ''}`);
   });
 });
 console.log(bad ? `${bad} of ${total} stages need a look` : `all ${total} stages OK`);
